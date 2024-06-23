@@ -29,6 +29,14 @@ const pool = mysql.createPool({
 
 // CREATE A TRAIL
 app.post('/create-trail', (req, res) => {
-    trailData = req.body;
-    res.status(201).json({ message: 'Trail route created successfully', trailData });
+    const { trail_name, distance, difficulty, trail_location, trail_description, upvotes } = req.body;
+    const sql = 'INSERT INTO trails (trail_name, distance, difficulty, trail_location, trail_description, upvotes) VALUES (?, ?, ?, ?, ?, ?)';
+    pool.query(sql, [trail_name, distance, difficulty, trail_location, trail_description, upvote], (err, result) => {
+        if (err) {
+            console.error('Error inserting trail route:', err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+
+        res.status(201).json({ id:result.insertId, message: `Trail route ${trail_name} created successfully` });
+    });
 });
