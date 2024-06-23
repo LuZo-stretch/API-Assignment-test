@@ -31,12 +31,40 @@ const pool = mysql.createPool({
 app.post('/create-trail', (req, res) => {
     const { trail_name, distance, difficulty, trail_location, trail_description, upvotes } = req.body;
     const sql = 'INSERT INTO trails (trail_name, distance, difficulty, trail_location, trail_description, upvotes) VALUES (?, ?, ?, ?, ?, ?)';
-    pool.query(sql, [trail_name, distance, difficulty, trail_location, trail_description, upvote], (err, result) => {
+    pool.query(sql, [trail_name, distance, difficulty, trail_location, trail_description, upvotes], (err, result) => {
         if (err) {
             console.error('Error inserting trail route:', err.message);
             return res.status(500).json({ error: 'Database error' });
         }
 
         res.status(201).json({ id:result.insertId, message: `Trail route ${trail_name} created successfully` });
+    });
+});
+
+// GET ALL TRAILS
+app.get('/trails', (req, res) => {
+    const sql = 'SELECT * FROM trails';
+    pool.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching users:', err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.status(200).json(results);
+    })
+})
+
+app.put('/trails/:id', (req, res) => {
+    const { id } = req.params;
+    const { trail_name, distance, difficulty, trail_location, trail_description, upvotes } = req.body;
+    const sql = 'UPDATE trails SET trail_name = ?, distance = ?, difficulty = ?, trail_location = ?, trail_description = ?, upvotes = ? WHERE id = ?';
+    pool.query(sql, [trail_name, distance, difficulty, trail_location, trail_description, upvotes], (err, results) => {
+        if (err) {
+            console.error('Error updating trail', err.message);
+            return res.status(500).json({ error: 'Trail not found'});
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: `Trail with ID ${id} not found` });
+        }
+        res.status(200).json({ message: `Trail with ID ${id} updated successfully`});
     });
 });
