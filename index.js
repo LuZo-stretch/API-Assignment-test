@@ -53,18 +53,37 @@ app.get('/trails', (req, res) => {
     })
 })
 
+// UPDATE TRAILS
 app.put('/trails/:id', (req, res) => {
     const id = req.params.id;
     const { trail_name, distance, difficulty, trail_location, trail_description, upvotes } = req.body;
     const sql = 'UPDATE trails SET trail_name = ?, distance = ?, difficulty = ?, trail_location = ?, trail_description = ?, upvotes = ? WHERE id = ?';
-    pool.query(sql, [trail_name, distance, difficulty, trail_location, trail_description, upvotes], (err, results) => {
+    pool.query(sql, [trail_name, distance, difficulty, trail_location, trail_description, upvotes, id], (err, results) => {
         if (err) {
             console.error('Error updating trail', err.message);
-            return res.status(500).json({ error: 'Trail not found'});
+            return res.status(500).json({ error: 'Database error'});
         }
         if (results.affectedRows === 0) {
-            return res.status(404).json({ error: `Trail with ID ${id} not found` });
+            return res.status(404).json({ error: `Trail not found` });
         }
         res.status(200).json({ message: `Trail with ID ${id} updated successfully`});
+    });
+});
+
+// DELETE TRAILS
+
+app.delete('/trails/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = 'DELETE FROM trails WHERE id = ?';
+    pool.query(sql, [trail_name, distance, difficulty, trail_location, trail_description, upvotes, id], (err, results) => {
+        if (err) {
+            console.error('Error deleting trail', err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Trail not found'});
+        }
+
+        res.status(200).json({ message: 'Trail deleted successfully' });
     });
 });
