@@ -27,3 +27,8 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
+// CREATE A TRAIL
+app.post('/create-trail', (req, res) => {
+    trailData = req.body;
+    res.status(201).json({ message: 'Trail route created successfully', trailData });
+});
