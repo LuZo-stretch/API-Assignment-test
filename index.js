@@ -54,7 +54,7 @@ app.get('/trails', (req, res) => {
 })
 
 app.put('/trails/:id', (req, res) => {
-    const { id } = req.params;
+    const id = req.params.id;
     const { trail_name, distance, difficulty, trail_location, trail_description, upvotes } = req.body;
     const sql = 'UPDATE trails SET trail_name = ?, distance = ?, difficulty = ?, trail_location = ?, trail_description = ?, upvotes = ? WHERE id = ?';
     pool.query(sql, [trail_name, distance, difficulty, trail_location, trail_description, upvotes], (err, results) => {
