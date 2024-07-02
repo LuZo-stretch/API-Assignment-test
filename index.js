@@ -107,7 +107,7 @@ app.put('/trails/:id', (req, res) => {
 app.delete('/trails/:id', (req, res) => {
     const id = req.params.id;
     const sql = 'DELETE FROM trails WHERE id = ?';
-    pool.query(sql, [trail_name, distance, difficulty, trail_location, trail_description, upvotes, id], (err, results) => {
+    pool.query(sql, [id], (err, results) => {
         if (err) {
             console.error('Error deleting trail', err.message);
             return res.status(500).json({ error: 'Database error' });
