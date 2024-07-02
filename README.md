@@ -30,12 +30,12 @@ Welcome!! The Hiking Trails API allos you to manage hiking trail information, ad
 
 ### Using postman to test endpoints and responses you should receive:
 1. POST/create-trail
-![Create trail](assets\post_create.png)
+![Create trail](assets/post_create.png)
 2. POST/trails/:id/upvote
-![Upvote trail](assets\post_upvote.png)
+![Upvote trail](assets/post_upvote.png)
 3. GET/trails
-![Get trails](assets\get.png)
+![Get trails](assets/get.png)
 4. PUT/trails/:id
-![Update trail](assets\put.png)
+![Update trail](assets/put.png)
 5. DELETE/trails/:id
-![Delete trail](assets\delete.png)
+![Delete trail](assets/delete.png)
