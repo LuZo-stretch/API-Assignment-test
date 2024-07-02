@@ -2,18 +2,11 @@ require('dotenv').config();
 
 const express = require('express');
 const mysql = require('mysql2');
+const Joi = require('joi');
+
 const app = express();
 app.use(express.json());
-const PORT = 3000;
-
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
-
-app.get('/', (req, res) => {
-    res.send('Welcome to our API!');
-});
+const PORT = process.env.PORT || 3000;
 
 // Creating MySQL connection pool
 
@@ -27,8 +20,42 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
+// Checking the setup is correct
+
+pool.getConnection((err, connection) => {
+    if (err) {
+    console.error('Error connecting to the database:', err.message);
+    return;
+    }
+    console.log('Database connected!');
+    connection.release();
+    });
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
+app.get('/', (req, res) => {
+    res.send('Welcome to our API!');
+});
+
+// Joi schema for trail validation
+const trailSchema = Joi.object({
+    trail_name: Joi.string().required(),
+    distance: Joi.number().required(),
+    difficulty: Joi.number().required(),
+    trail_location: Joi.string().required(),
+    trail_description: Joi.string().optional(),
+    upvotes: Joi.number().integer().optional()
+});
+
 // CREATE A TRAIL
 app.post('/create-trail', (req, res) => {
+    const { error } = trailSchema.validate(req.body);
+    if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+    }
+
     const { trail_name, distance, difficulty, trail_location, trail_description, upvotes } = req.body;
     const sql = 'INSERT INTO trails (trail_name, distance, difficulty, trail_location, trail_description, upvotes) VALUES (?, ?, ?, ?, ?, ?)';
     pool.query(sql, [trail_name, distance, difficulty, trail_location, trail_description, upvotes], (err, result) => {
@@ -55,6 +82,11 @@ app.get('/trails', (req, res) => {
 
 // UPDATE TRAILS
 app.put('/trails/:id', (req, res) => {
+    const { error } = trailSchema.validate(req.body);
+    if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+    }
+
     const id = req.params.id;
     const { trail_name, distance, difficulty, trail_location, trail_description, upvotes } = req.body;
     const sql = 'UPDATE trails SET trail_name = ?, distance = ?, difficulty = ?, trail_location = ?, trail_description = ?, upvotes = ? WHERE id = ?';
@@ -85,5 +117,20 @@ app.delete('/trails/:id', (req, res) => {
         }
 
         res.status(200).json({ message: 'Trail deleted successfully' });
+    });
+});
+
+// ADDITIONAL ENDPOINT: Upvote a trail
+app.post('/trails/:id/upvote', (req, res) => {
+    const id = req.params.id;
+    const sql = 'UPDATE trails SET upvotes = upvotes + 1 WHERE id = ?';
+    pool.query(sql, [id], (err, results) => {
+        if (err) {
+            console.error('Error upvoting trail:', err.message);
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Trail not found' });
+        }
+        res.status(200).json({ message: `Trail with ID ${id} upvoted successfully` });
     });
 });
