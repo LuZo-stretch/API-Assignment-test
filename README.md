@@ -39,3 +39,5 @@ Welcome!! The Hiking Trails API allos you to manage hiking trail information, ad
 ![Update trail](assets/put.png)
 5. DELETE/trails/:id
 ![Delete trail](assets/delete.png)
+
+** ENJOY!**
